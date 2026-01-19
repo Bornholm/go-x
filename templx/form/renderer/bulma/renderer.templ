@@ -1,0 +1,204 @@
+package bulma
+
+import "github.com/bornholm/go-x/templx/form"
+
+// Input renders a basic input field using Bulma CSS
+templ Input(fieldCtx form.FieldContext) {
+	<div class="field" id={ "container-" + fieldCtx.Name }>
+		if fieldCtx.Label != "" {
+			<label class="label" for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span class="has-text-danger">*</span>
+				}
+			</label>
+		}
+		<div class="control">
+			<input
+				type={ fieldCtx.Type }
+				name={ fieldCtx.Name }
+				id={ fieldCtx.Name }
+				class={ templ.KV("input", true), templ.KV("is-danger", fieldCtx.Error != ""), templ.KV(fieldCtx.Class, fieldCtx.Class != "") }
+				if fieldCtx.Value != "" {
+					value={ fieldCtx.Value }
+				}
+				if fieldCtx.Placeholder != "" {
+					placeholder={ fieldCtx.Placeholder }
+				}
+				if fieldCtx.Required {
+					required
+				}
+				{ templ.Attributes(fieldCtx.Attributes)... }
+			/>
+		</div>
+		if fieldCtx.Error != "" {
+			<p class="help is-danger">{ fieldCtx.Error }</p>
+		} else {
+			<p class="help">{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// Textarea renders a textarea field using Bulma CSS
+templ Textarea(fieldCtx form.FieldContext) {
+	<div class="field" id={ "container-" + fieldCtx.Name }>
+		if fieldCtx.Label != "" {
+			<label class="label" for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span class="has-text-danger">*</span>
+				}
+			</label>
+		}
+		<div class="control">
+			<textarea
+				name={ fieldCtx.Name }
+				id={ fieldCtx.Name }
+				class={ templ.KV("textarea", true), templ.KV("is-danger", fieldCtx.Error != ""), templ.KV(fieldCtx.Class, fieldCtx.Class != "") }
+				if fieldCtx.Placeholder != "" {
+					placeholder={ fieldCtx.Placeholder }
+				}
+				if fieldCtx.Required {
+					required
+				}
+				{ templ.Attributes(fieldCtx.Attributes)... }
+			>{ fieldCtx.Value }</textarea>
+		</div>
+		if fieldCtx.Error != "" {
+			<p class="help is-danger">{ fieldCtx.Error }</p>
+		} else {
+			<p class="help">{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// Checkbox renders a checkbox field using Bulma CSS
+templ Checkbox(fieldCtx form.FieldContext) {
+	<div class="field" id={ "container-" + fieldCtx.Name }>
+		<div class="control">
+			<label class="checkbox">
+				<input
+					type="checkbox"
+					name={ fieldCtx.Name }
+					id={ fieldCtx.Name }
+					if fieldCtx.Value == "on" || fieldCtx.Value == "true" || fieldCtx.Value == "1" {
+						checked
+					}
+					{ templ.Attributes(fieldCtx.Attributes)... }
+				/>
+				if fieldCtx.Label != "" {
+					{ " " + fieldCtx.Label }
+				}
+			</label>
+		</div>
+		if fieldCtx.Error != "" {
+			<p class="help is-danger">{ fieldCtx.Error }</p>
+		} else {
+			<p class="help">{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// FileInput renders a file input field using Bulma CSS
+templ FileInput(fieldCtx form.FieldContext) {
+	<div class="field" id={ "container-" + fieldCtx.Name }>
+		if fieldCtx.Label != "" {
+			<label class="label" for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span class="has-text-danger">*</span>
+				}
+			</label>
+		}
+		<div class="file has-name">
+			<label class="file-label">
+				<input
+					class="file-input"
+					type="file"
+					name={ fieldCtx.Name }
+					id={ fieldCtx.Name }
+					if fieldCtx.Required {
+						required
+					}
+					{ templ.Attributes(fieldCtx.Attributes)... }
+				/>
+				<span class="file-cta">
+					<span class="file-icon">
+						<i class="fas fa-upload"></i>
+					</span>
+					<span class="file-label">Choose a file…</span>
+				</span>
+				<span class="file-name">No file selected</span>
+			</label>
+		</div>
+		if fieldCtx.Error != "" {
+			<p class="help is-danger">{ fieldCtx.Error }</p>
+		} else {
+			<p class="help">{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// Select renders a select dropdown field using Bulma CSS
+templ Select(fieldCtx form.FieldContext) {
+	<div class="field" id={ "container-" + fieldCtx.Name }>
+		if fieldCtx.Label != "" {
+			<label class="label" for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span class="has-text-danger">*</span>
+				}
+			</label>
+		}
+		<div class="control">
+			<div class="select is-fullwidth">
+				<select
+					name={ fieldCtx.Name }
+					id={ fieldCtx.Name }
+					class={ templ.KV("is-danger", fieldCtx.Error != "") }
+					if fieldCtx.Required {
+						required
+					}
+					{ templ.Attributes(fieldCtx.Attributes)... }
+				>
+					if fieldCtx.Placeholder != "" {
+						<option value="">{ fieldCtx.Placeholder }</option>
+					}
+					{{ options := form.GetFieldOption(fieldCtx, form.OptSelectOptions, []form.SelectOption{}) }}
+					for _, option := range options {
+						<option
+							value={ option.Value }
+							if option.Value == fieldCtx.Value {
+								selected
+							}
+						>{ option.Label }</option>
+					}
+				</select>
+			</div>
+		</div>
+		if fieldCtx.Error != "" {
+			<p class="help is-danger">{ fieldCtx.Error }</p>
+		} else {
+			<p class="help">{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// Form renders a complete form
+templ Form(f *form.Form, action templ.SafeURL, method string) {
+	<form
+		action={ action }
+		method={ method }
+		if  form.HasFile(f.Fields) {
+			enctype="multipart/form-data"
+		} else {
+			enctype="multipart/application/x-www-form-urlencoded"
+		}
+	>
+		for _, fieldName := range f.GetFieldNames() {
+			{{ fieldComponent, _ := f.RenderField(fieldName) }}
+			@fieldComponent
+		}
+		{ children... }
+	</form>
+}

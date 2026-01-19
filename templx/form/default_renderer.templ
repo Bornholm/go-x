@@ -1,0 +1,243 @@
+package form
+
+// FieldRenderer provides basic HTML field rendering
+type DefaultRenderer struct{}
+
+// RenderField renders a field using basic HTML
+func (r *DefaultRenderer) RenderField(ctx FieldContext) templ.Component {
+	switch ctx.Type {
+	case "textarea":
+		return Textarea(ctx)
+	case "checkbox":
+		return Checkbox(ctx)
+	case "file":
+		return FileInput(ctx)
+	case "select":
+		return Select(ctx)
+	default:
+		return Input(ctx)
+	}
+}
+
+func NewDefaultRenderer() *DefaultRenderer {
+	return &DefaultRenderer{}
+}
+
+// TextareaRenderer renders textarea fields
+type TextareaRenderer struct{}
+
+func (r *TextareaRenderer) RenderField(ctx FieldContext) templ.Component {
+	return Textarea(ctx)
+}
+
+// CheckboxRenderer renders checkbox fields
+type CheckboxRenderer struct{}
+
+func (r *CheckboxRenderer) RenderField(ctx FieldContext) templ.Component {
+	return Checkbox(ctx)
+}
+
+// FileRenderer renders file input fields
+type FileRenderer struct{}
+
+func (r *FileRenderer) RenderField(ctx FieldContext) templ.Component {
+	return FileInput(ctx)
+}
+
+type SelectRenderer struct {
+}
+
+func (r *SelectRenderer) RenderField(ctx FieldContext) templ.Component {
+	return Select(ctx)
+}
+
+func NewSelectRenderer() *SelectRenderer {
+	return &SelectRenderer{}
+}
+
+templ Input(fieldCtx FieldContext) {
+	<div>
+		if fieldCtx.Label != "" {
+			<label for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span>*</span>
+				}
+			</label>
+		}
+		<input
+			type={ fieldCtx.Type }
+			name={ fieldCtx.Name }
+			id={ fieldCtx.Name }
+			class={ templ.KV(fieldCtx.Class, fieldCtx.Class != "") }
+			if fieldCtx.Value != "" {
+				value={ fieldCtx.Value }
+			}
+			if fieldCtx.Placeholder != "" {
+				placeholder={ fieldCtx.Placeholder }
+			}
+			if fieldCtx.Required {
+				required
+			}
+			{ templ.Attributes(fieldCtx.Attributes)... }
+		/>
+		if fieldCtx.Error != "" {
+			<p>{ fieldCtx.Error }</p>
+		} else {
+			<p>{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+templ Textarea(fieldCtx FieldContext) {
+	<div>
+		if fieldCtx.Label != "" {
+			<label for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span>*</span>
+				}
+			</label>
+		}
+		<div>
+			<textarea
+				name={ fieldCtx.Name }
+				id={ fieldCtx.Name }
+				class={ templ.KV(fieldCtx.Class, fieldCtx.Class != "") }
+				if fieldCtx.Placeholder != "" {
+					placeholder={ fieldCtx.Placeholder }
+				}
+				if fieldCtx.Required {
+					required
+				}
+				{ templ.Attributes(fieldCtx.Attributes)... }
+			>{ fieldCtx.Value }</textarea>
+		</div>
+		if fieldCtx.Error != "" {
+			<p>{ fieldCtx.Error }</p>
+		} else {
+			<p>{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// Checkbox renders a checkbox field
+templ Checkbox(fieldCtx FieldContext) {
+	<div>
+		<div>
+			<label>
+				<input
+					type="checkbox"
+					name={ fieldCtx.Name }
+					id={ fieldCtx.Name }
+					if fieldCtx.Value == "on" || fieldCtx.Value == "true" || fieldCtx.Value == "1" {
+						checked
+					}
+					{ templ.Attributes(fieldCtx.Attributes)... }
+				/>
+				if fieldCtx.Label != "" {
+					{ " " + fieldCtx.Label }
+				}
+			</label>
+		</div>
+		if fieldCtx.Error != "" {
+			<p>{ fieldCtx.Error }</p>
+		} else {
+			<p>{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// FileInput renders a file input field using Bulma CSS
+templ FileInput(fieldCtx FieldContext) {
+	<div>
+		if fieldCtx.Label != "" {
+			<label for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span>*</span>
+				}
+			</label>
+		}
+		<div>
+			<label>
+				<input
+					type="file"
+					name={ fieldCtx.Name }
+					id={ fieldCtx.Name }
+					if fieldCtx.Required {
+						required
+					}
+					{ templ.Attributes(fieldCtx.Attributes)... }
+				/>
+			</label>
+		</div>
+		if fieldCtx.Error != "" {
+			<p>{ fieldCtx.Error }</p>
+		} else {
+			<p>{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// Select renders a select dropdown field using Bulma CSS
+templ Select(fieldCtx FieldContext) {
+	<div>
+		if fieldCtx.Label != "" {
+			<label for={ fieldCtx.Name }>
+				{ fieldCtx.Label }
+				if fieldCtx.Required {
+					<span>*</span>
+				}
+			</label>
+		}
+		<select
+			name={ fieldCtx.Name }
+			id={ fieldCtx.Name }
+			class={ templ.KV("is-danger", fieldCtx.Error != "") }
+			if fieldCtx.Required {
+				required
+			}
+			{ templ.Attributes(fieldCtx.Attributes)... }
+		>
+			if fieldCtx.Placeholder != "" {
+				<option value="">{ fieldCtx.Placeholder }</option>
+			}
+			{{ options := GetFieldOption(fieldCtx, OptSelectOptions, []SelectOption{}) }}
+			for _, option := range options {
+				<option
+					value={ option.Value }
+					if option.Value == fieldCtx.Value {
+						selected
+					}
+				>{ option.Label }</option>
+			}
+		</select>
+		if fieldCtx.Error != "" {
+			<p>{ fieldCtx.Error }</p>
+		} else {
+			<p>{ fieldCtx.Placeholder }</p>
+		}
+	</div>
+}
+
+// FormWrapper renders a complete form
+templ FormWrapper(form *Form, action templ.SafeURL, method string) {
+	<div>
+		<form
+			action={ action }
+			method={ method }
+			if HasFile(form.Fields) {
+				enctype="multipart/form-data"
+			} else {
+				enctype="multipart/application/x-www-form-urlencoded"
+			}
+		>
+			for _, fieldName := range form.GetFieldNames() {
+				{{ fieldComponent, _ := form.RenderField(fieldName) }}
+				@fieldComponent
+			}
+			{ children... }
+		</form>
+	</div>
+}
