@@ -37,6 +37,46 @@ func WithType(fieldType string) FieldOptionFunc {
 	}
 }
 
+func WithRequired(required bool) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		opts.Required = required
+	}
+}
+
+func WithPlaceholder(placeholder string) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		opts.Placeholder = placeholder
+	}
+}
+
+func WithAttributes(attributes map[string]any) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		opts.Attributes = attributes
+	}
+}
+
+func WithAttribute(name string, value any) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		if opts.Attributes == nil {
+			opts.Attributes = map[string]any{}
+		}
+
+		opts.Attributes[name] = value
+	}
+}
+
+func WithValidation(rules ...ValidationRule) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		opts.Validation = rules
+	}
+}
+
+func WithOptions(options map[string]any) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		opts.Options = options
+	}
+}
+
 func NewFieldOptions(funcs ...FieldOptionFunc) *FieldOptions {
 	opts := &FieldOptions{
 		Label:       "",
@@ -99,4 +139,14 @@ func GetSelectOptions(fieldCtx FieldContext, defaultValue []SelectOption) []Sele
 type SelectOption struct {
 	Label string
 	Value string
+}
+
+func WithSelectOptions(options ...SelectOption) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		if opts.Options == nil {
+			opts.Options = map[string]any{}
+		}
+
+		opts.Options[OptSelectOptions] = options
+	}
 }
