@@ -84,7 +84,7 @@ templ Input(fieldCtx FieldContext) {
 		if fieldCtx.Error != "" {
 			<p>{ fieldCtx.Error }</p>
 		} else {
-			<p>{ fieldCtx.Placeholder }</p>
+			<p>{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -116,7 +116,7 @@ templ Textarea(fieldCtx FieldContext) {
 		if fieldCtx.Error != "" {
 			<p>{ fieldCtx.Error }</p>
 		} else {
-			<p>{ fieldCtx.Placeholder }</p>
+			<p>{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -143,7 +143,7 @@ templ Checkbox(fieldCtx FieldContext) {
 		if fieldCtx.Error != "" {
 			<p>{ fieldCtx.Error }</p>
 		} else {
-			<p>{ fieldCtx.Placeholder }</p>
+			<p>{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -175,7 +175,7 @@ templ FileInput(fieldCtx FieldContext) {
 		if fieldCtx.Error != "" {
 			<p>{ fieldCtx.Error }</p>
 		} else {
-			<p>{ fieldCtx.Placeholder }</p>
+			<p>{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -216,7 +216,7 @@ templ Select(fieldCtx FieldContext) {
 		if fieldCtx.Error != "" {
 			<p>{ fieldCtx.Error }</p>
 		} else {
-			<p>{ fieldCtx.Placeholder }</p>
+			<p>{ fieldCtx.Description }</p>
 		}
 	</div>
 }

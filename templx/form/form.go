@@ -128,6 +128,7 @@ func (f *Form) GetFieldContext(fieldName string) (FieldContext, error) {
 	ctx := FieldContext{
 		Field: *field,
 		Error: f.Errors[field.Name],
+		Value: f.Values[field.Name],
 	}
 
 	return ctx, nil

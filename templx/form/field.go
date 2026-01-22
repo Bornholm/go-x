@@ -18,6 +18,7 @@ type FieldOptions struct {
 	Type        string
 	Required    bool
 	Placeholder string
+	Description string
 	Attributes  map[string]any
 	Options     map[string]any
 	Validation  []ValidationRule
@@ -46,6 +47,12 @@ func WithRequired(required bool) FieldOptionFunc {
 func WithPlaceholder(placeholder string) FieldOptionFunc {
 	return func(opts *FieldOptions) {
 		opts.Placeholder = placeholder
+	}
+}
+
+func WithDescription(description string) FieldOptionFunc {
+	return func(opts *FieldOptions) {
+		opts.Description = description
 	}
 }
 
@@ -83,6 +90,7 @@ func NewFieldOptions(funcs ...FieldOptionFunc) *FieldOptions {
 		Type:        "text",
 		Required:    false,
 		Placeholder: "",
+		Description: "",
 		Attributes:  map[string]any{},
 		Options:     map[string]any{},
 		Validation:  make([]ValidationRule, 0),

@@ -34,7 +34,7 @@ templ Input(fieldCtx form.FieldContext) {
 		if fieldCtx.Error != "" {
 			<p class="help is-danger">{ fieldCtx.Error }</p>
 		} else {
-			<p class="help">{ fieldCtx.Placeholder }</p>
+			<p class="help">{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -67,7 +67,7 @@ templ Textarea(fieldCtx form.FieldContext) {
 		if fieldCtx.Error != "" {
 			<p class="help is-danger">{ fieldCtx.Error }</p>
 		} else {
-			<p class="help">{ fieldCtx.Placeholder }</p>
+			<p class="help">{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -94,7 +94,7 @@ templ Checkbox(fieldCtx form.FieldContext) {
 		if fieldCtx.Error != "" {
 			<p class="help is-danger">{ fieldCtx.Error }</p>
 		} else {
-			<p class="help">{ fieldCtx.Placeholder }</p>
+			<p class="help">{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -134,7 +134,7 @@ templ FileInput(fieldCtx form.FieldContext) {
 		if fieldCtx.Error != "" {
 			<p class="help is-danger">{ fieldCtx.Error }</p>
 		} else {
-			<p class="help">{ fieldCtx.Placeholder }</p>
+			<p class="help">{ fieldCtx.Description }</p>
 		}
 	</div>
 }
@@ -179,7 +179,7 @@ templ Select(fieldCtx form.FieldContext) {
 		if fieldCtx.Error != "" {
 			<p class="help is-danger">{ fieldCtx.Error }</p>
 		} else {
-			<p class="help">{ fieldCtx.Placeholder }</p>
+			<p class="help">{ fieldCtx.Description }</p>
 		}
 	</div>
 }
