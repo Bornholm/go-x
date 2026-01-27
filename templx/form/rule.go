@@ -3,7 +3,6 @@ package form
 import (
 	"context"
 	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -25,8 +24,8 @@ func (r RequiredRule) Validate(ctx context.Context, f *Form, field Field) error 
 			found = false
 		}
 	} else {
-		value, exists := f.Values[field.Name]
-		if !exists || strings.TrimSpace(value) == "" {
+		values, exists := f.Values[field.Name]
+		if !exists || len(values) == 0 {
 			found = false
 		}
 	}
@@ -75,22 +74,25 @@ type NumberRangeRule struct {
 var _ ValidationRule = &NumberRangeRule{}
 
 func (r NumberRangeRule) Validate(ctx context.Context, f *Form, field Field) error {
-	value := f.Values[field.Name]
-	if value == "" {
+	values := f.Values[field.Name]
+	if len(values) == 0 {
 		return nil // Let required rule handle empty values
 	}
 
-	num, err := strconv.Atoi(value)
-	if err != nil {
-		return errors.New("must be a valid number")
-	}
+	for _, v := range values {
+		num, err := strconv.Atoi(v)
+		if err != nil {
+			return errors.New("must be a valid number")
+		}
 
-	if r.Min != nil && num < *r.Min {
-		return errors.Errorf("must be at least %d", *r.Min)
-	}
+		if r.Min != nil && num < *r.Min {
+			return errors.Errorf("must be at least %d", *r.Min)
+		}
 
-	if r.Max != nil && num > *r.Max {
-		return errors.Errorf("must be at most %d", *r.Max)
+		if r.Max != nil && num > *r.Max {
+			return errors.Errorf("must be at most %d", *r.Max)
+		}
+
 	}
 
 	return nil

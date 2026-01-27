@@ -1,0 +1,22 @@
+package form
+
+// FormWrapper renders a complete form
+templ FormWrapper(form *Form, action templ.SafeURL, method string) {
+	<div>
+		<form
+			action={ action }
+			method={ method }
+			if HasFile(form.Fields) {
+				enctype="multipart/form-data"
+			} else {
+				enctype="multipart/application/x-www-form-urlencoded"
+			}
+		>
+			for _, fieldName := range form.GetFieldNames() {
+				{{ fieldComponent, _ := form.RenderField(fieldName) }}
+				@fieldComponent
+			}
+			{ children... }
+		</form>
+	</div>
+}

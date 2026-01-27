@@ -12,7 +12,7 @@ import (
 // Form represents a form with fields defined at runtime
 type Form struct {
 	Fields  []Field
-	Values  map[string]string
+	Values  map[string][]string
 	Files   map[string][]*multipart.FileHeader
 	Errors  map[string]string
 	options *FormOptions
@@ -24,7 +24,7 @@ func New(fields []Field, funcs ...FormOptionFunc) *Form {
 
 	form := &Form{
 		Fields:  fields,
-		Values:  make(map[string]string),
+		Values:  make(map[string][]string),
 		Errors:  make(map[string]string),
 		Files:   make(map[string][]*multipart.FileHeader),
 		options: options,
@@ -57,7 +57,7 @@ func (f *Form) Handle(r *http.Request) error {
 			f.Files[field.Name] = fileHeaders
 
 		} else {
-			f.Values[field.Name] = r.FormValue(field.Name)
+			f.Values[field.Name] = r.Form[field.Name]
 		}
 	}
 
@@ -155,6 +155,19 @@ func (f *Form) GetFieldNames() []string {
 	return names
 }
 
+// SetFieldValues set a field values
+func (f *Form) SetFieldValues(fieldName string, values ...string) {
+	f.Values[fieldName] = values
+}
+
+func (f *Form) GetFieldValues(fieldName string) ([]string, bool) {
+	return GetFieldValues(fieldName, f.Values)
+}
+
+func (f *Form) GetFieldValue(fieldName string) (string, bool) {
+	return GetFieldValue(fieldName, f.Values)
+}
+
 // findRenderer finds the appropriate renderer for a field
 func (f *Form) findRenderer(fieldName, fieldType string) FieldRenderer {
 	// Check for field-specific renderer
@@ -169,4 +182,18 @@ func (f *Form) findRenderer(fieldName, fieldType string) FieldRenderer {
 
 	// Fall back to default renderer
 	return f.options.DefaultRenderer
+}
+
+func GetFieldValues(fieldName string, formValues map[string][]string) ([]string, bool) {
+	values, exists := formValues[fieldName]
+	return values, exists
+}
+
+func GetFieldValue(fieldName string, formValues map[string][]string) (string, bool) {
+	values, exists := formValues[fieldName]
+	if !exists || len(values) == 0 {
+		return "", false
+	}
+
+	return values[0], true
 }

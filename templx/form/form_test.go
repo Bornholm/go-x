@@ -62,8 +62,12 @@ func TestNewFormWithFileField(t *testing.T) {
 		t.Fatalf("Expected no error, got: %v", err)
 	}
 
+	if len(form.Values["name"]) == 0 {
+		t.Errorf("Expected name []string{'John Doe'}, got '%s'", form.Values["name"])
+	}
+
 	// Verify form data was parsed correctly
-	if form.Values["name"] != "John Doe" {
+	if len(form.Values["name"]) > 0 && form.Values["name"][0] != "John Doe" {
 		t.Errorf("Expected name 'John Doe', got '%s'", form.Values["name"])
 	}
 	if _, exists := form.Files["document"]; !exists {
@@ -90,11 +94,20 @@ func TestNewFormWithoutFileField(t *testing.T) {
 		t.Fatalf("Expected no error, got: %v", err)
 	}
 
+	if len(form.Values["name"]) == 0 {
+		t.Errorf("Expected name []string{'Jane Doe'}, got '%s'", form.Values["name"])
+	}
+
 	// Verify form data was parsed correctly
-	if form.Values["name"] != "Jane Doe" {
+	if len(form.Values["name"]) > 0 && form.Values["name"][0] != "Jane Doe" {
 		t.Errorf("Expected name 'Jane Doe', got '%s'", form.Values["name"])
 	}
-	if form.Values["email"] != "jane@example.com" {
+
+	if len(form.Values["email"]) == 0 {
+		t.Errorf("Expected name []string{'jane@example.com'}, got '%s'", form.Values["name"])
+	}
+
+	if len(form.Values["email"]) > 0 && form.Values["email"][0] != "jane@example.com" {
 		t.Errorf("Expected email 'jane@example.com', got '%s'", form.Values["email"])
 	}
 }

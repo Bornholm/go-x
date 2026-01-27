@@ -18,7 +18,7 @@ func (r *FieldRenderer) RenderField(ctx form.FieldContext) templ.Component {
 	case "file":
 		return FileInput(ctx)
 	case "select":
-		return Input(ctx)
+		return Select(ctx)
 	default:
 		return Input(ctx)
 	}

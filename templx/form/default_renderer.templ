@@ -1,5 +1,10 @@
 package form
 
+import (
+	"slices"
+	"strings"
+)
+
 // FieldRenderer provides basic HTML field rendering
 type DefaultRenderer struct{}
 
@@ -70,8 +75,8 @@ templ Input(fieldCtx FieldContext) {
 			name={ fieldCtx.Name }
 			id={ fieldCtx.Name }
 			class={ templ.KV(fieldCtx.Class, fieldCtx.Class != "") }
-			if fieldCtx.Value != "" {
-				value={ fieldCtx.Value }
+			if len(fieldCtx.Value) > 0 {
+				value={ strings.Join(fieldCtx.Value, "") }
 			}
 			if fieldCtx.Placeholder != "" {
 				placeholder={ fieldCtx.Placeholder }
@@ -111,7 +116,7 @@ templ Textarea(fieldCtx FieldContext) {
 					required
 				}
 				{ templ.Attributes(fieldCtx.Attributes)... }
-			>{ fieldCtx.Value }</textarea>
+			>{ strings.Join(fieldCtx.Value, "") }</textarea>
 		</div>
 		if fieldCtx.Error != "" {
 			<p>{ fieldCtx.Error }</p>
@@ -130,7 +135,7 @@ templ Checkbox(fieldCtx FieldContext) {
 					type="checkbox"
 					name={ fieldCtx.Name }
 					id={ fieldCtx.Name }
-					if fieldCtx.Value == "on" || fieldCtx.Value == "true" || fieldCtx.Value == "1" {
+					if len(fieldCtx.Value) > 0 && ( fieldCtx.Value[0] == "on" || fieldCtx.Value[0] == "true" || fieldCtx.Value[0] == "1" ) {
 						checked
 					}
 					{ templ.Attributes(fieldCtx.Attributes)... }
@@ -207,7 +212,7 @@ templ Select(fieldCtx FieldContext) {
 			for _, option := range options {
 				<option
 					value={ option.Value }
-					if option.Value == fieldCtx.Value {
+					if slices.Contains(fieldCtx.Value, option.Value) {
 						selected
 					}
 				>{ option.Label }</option>
@@ -218,26 +223,5 @@ templ Select(fieldCtx FieldContext) {
 		} else {
 			<p>{ fieldCtx.Description }</p>
 		}
-	</div>
-}
-
-// FormWrapper renders a complete form
-templ FormWrapper(form *Form, action templ.SafeURL, method string) {
-	<div>
-		<form
-			action={ action }
-			method={ method }
-			if HasFile(form.Fields) {
-				enctype="multipart/form-data"
-			} else {
-				enctype="multipart/application/x-www-form-urlencoded"
-			}
-		>
-			for _, fieldName := range form.GetFieldNames() {
-				{{ fieldComponent, _ := form.RenderField(fieldName) }}
-				@fieldComponent
-			}
-			{ children... }
-		</form>
 	</div>
 }

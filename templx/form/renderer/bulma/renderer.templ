@@ -1,10 +1,14 @@
 package bulma
 
-import "github.com/bornholm/go-x/templx/form"
+import (
+	"github.com/bornholm/go-x/templx/form"
+	"slices"
+	"strings"
+)
 
 // Input renders a basic input field using Bulma CSS
 templ Input(fieldCtx form.FieldContext) {
-	<div class="field" id={ "container-" + fieldCtx.Name }>
+	<div class="field">
 		if fieldCtx.Label != "" {
 			<label class="label" for={ fieldCtx.Name }>
 				{ fieldCtx.Label }
@@ -19,8 +23,8 @@ templ Input(fieldCtx form.FieldContext) {
 				name={ fieldCtx.Name }
 				id={ fieldCtx.Name }
 				class={ templ.KV("input", true), templ.KV("is-danger", fieldCtx.Error != ""), templ.KV(fieldCtx.Class, fieldCtx.Class != "") }
-				if fieldCtx.Value != "" {
-					value={ fieldCtx.Value }
+				if len(fieldCtx.Value) > 0 && fieldCtx.Value[0] != "" {
+					value={ strings.Join(fieldCtx.Value, "") }
 				}
 				if fieldCtx.Placeholder != "" {
 					placeholder={ fieldCtx.Placeholder }
@@ -41,7 +45,7 @@ templ Input(fieldCtx form.FieldContext) {
 
 // Textarea renders a textarea field using Bulma CSS
 templ Textarea(fieldCtx form.FieldContext) {
-	<div class="field" id={ "container-" + fieldCtx.Name }>
+	<div class="field">
 		if fieldCtx.Label != "" {
 			<label class="label" for={ fieldCtx.Name }>
 				{ fieldCtx.Label }
@@ -62,7 +66,7 @@ templ Textarea(fieldCtx form.FieldContext) {
 					required
 				}
 				{ templ.Attributes(fieldCtx.Attributes)... }
-			>{ fieldCtx.Value }</textarea>
+			>{ strings.Join(fieldCtx.Value, "") }</textarea>
 		</div>
 		if fieldCtx.Error != "" {
 			<p class="help is-danger">{ fieldCtx.Error }</p>
@@ -74,14 +78,14 @@ templ Textarea(fieldCtx form.FieldContext) {
 
 // Checkbox renders a checkbox field using Bulma CSS
 templ Checkbox(fieldCtx form.FieldContext) {
-	<div class="field" id={ "container-" + fieldCtx.Name }>
+	<div class="field">
 		<div class="control">
 			<label class="checkbox">
 				<input
 					type="checkbox"
 					name={ fieldCtx.Name }
 					id={ fieldCtx.Name }
-					if fieldCtx.Value == "on" || fieldCtx.Value == "true" || fieldCtx.Value == "1" {
+					if len(fieldCtx.Value) > 0 && fieldCtx.Value[0] == "on" || fieldCtx.Value[0] == "true" || fieldCtx.Value[0] == "1" {
 						checked
 					}
 					{ templ.Attributes(fieldCtx.Attributes)... }
@@ -101,7 +105,7 @@ templ Checkbox(fieldCtx form.FieldContext) {
 
 // FileInput renders a file input field using Bulma CSS
 templ FileInput(fieldCtx form.FieldContext) {
-	<div class="field" id={ "container-" + fieldCtx.Name }>
+	<div class="field">
 		if fieldCtx.Label != "" {
 			<label class="label" for={ fieldCtx.Name }>
 				{ fieldCtx.Label }
@@ -141,7 +145,7 @@ templ FileInput(fieldCtx form.FieldContext) {
 
 // Select renders a select dropdown field using Bulma CSS
 templ Select(fieldCtx form.FieldContext) {
-	<div class="field" id={ "container-" + fieldCtx.Name }>
+	<div class="field">
 		if fieldCtx.Label != "" {
 			<label class="label" for={ fieldCtx.Name }>
 				{ fieldCtx.Label }
@@ -151,7 +155,8 @@ templ Select(fieldCtx form.FieldContext) {
 			</label>
 		}
 		<div class="control">
-			<div class="select is-fullwidth">
+			{{ _, isMultiple := fieldCtx.Attributes["multiple"] }}
+			<div class={ "select", "is-fullwidth", templ.KV("is-multiple", isMultiple) }>
 				<select
 					name={ fieldCtx.Name }
 					id={ fieldCtx.Name }
@@ -164,11 +169,11 @@ templ Select(fieldCtx form.FieldContext) {
 					if fieldCtx.Placeholder != "" {
 						<option value="">{ fieldCtx.Placeholder }</option>
 					}
-					{{ options := form.GetFieldOption(fieldCtx, form.OptSelectOptions, []form.SelectOption{}) }}
+					{{ options := form.GetSelectOptions(fieldCtx, []form.SelectOption{}) }}
 					for _, option := range options {
 						<option
 							value={ option.Value }
-							if option.Value == fieldCtx.Value {
+							if slices.Contains( fieldCtx.Value, option.Value) {
 								selected
 							}
 						>{ option.Label }</option>
@@ -182,23 +187,4 @@ templ Select(fieldCtx form.FieldContext) {
 			<p class="help">{ fieldCtx.Description }</p>
 		}
 	</div>
-}
-
-// Form renders a complete form
-templ Form(f *form.Form, action templ.SafeURL, method string) {
-	<form
-		action={ action }
-		method={ method }
-		if  form.HasFile(f.Fields) {
-			enctype="multipart/form-data"
-		} else {
-			enctype="multipart/application/x-www-form-urlencoded"
-		}
-	>
-		for _, fieldName := range f.GetFieldNames() {
-			{{ fieldComponent, _ := f.RenderField(fieldName) }}
-			@fieldComponent
-		}
-		{ children... }
-	</form>
 }

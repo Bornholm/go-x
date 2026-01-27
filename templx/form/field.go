@@ -112,7 +112,7 @@ func NewField(name string, funcs ...FieldOptionFunc) Field {
 // FieldContext contains all information needed to render a form field
 type FieldContext struct {
 	Field
-	Value string
+	Value []string
 	Error string
 	Class string
 }
@@ -123,7 +123,7 @@ type FieldRenderer interface {
 }
 
 func GetFieldOption[T any](fieldCtx FieldContext, name string, defaultValue T) T {
-	rawAttr, exists := fieldCtx.Attributes[name]
+	rawAttr, exists := fieldCtx.Options[name]
 	if !exists {
 		return defaultValue
 	}
